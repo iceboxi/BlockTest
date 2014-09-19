@@ -12,7 +12,14 @@
 
 - (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions
 {
-    // Override point for customization after application launch.
+    int multiplier = 7;
+    int (^myBlock)(int) = ^(int num)
+    {
+        return num * multiplier;
+    };
+    
+    DLog(@"%d", myBlock(2));
+    
     return YES;
 }
 							
