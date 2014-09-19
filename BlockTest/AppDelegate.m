@@ -12,6 +12,15 @@
 
 - (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions
 {
+    [self blockTest1];
+    [self blockTest2];
+    
+    return YES;
+}
+
+- (void)blockTest1
+{
+    // 輸入n輸出7*n
     int multiplier = 7;
     int (^myBlock)(int) = ^(int num)
     {
@@ -19,8 +28,30 @@
     };
     
     DLog(@"%d", myBlock(2));
+}
+
+- (void)blockTest2
+{
+    // 透過block設定的規則排序
+    char *myCharacters[4] = {"TomCock", "George", "Goaer", "Jobs"};
     
-    return YES;
+    DLog(@"before");
+    for (int i=0; i<4; i++) {
+        printf("%s ", myCharacters[i]);
+    }
+    printf("\n");
+    
+    qsort_b(myCharacters, 4, sizeof(char *), ^(const void *l, const void *r)
+            {
+                char *left = *(char **)l;
+                char *right = *(char **)r;
+                return strncmp(left, right, 1);
+            });
+    DLog(@"after");
+    for (int i=0; i<4; i++) {
+        printf("%s ", myCharacters[i]);
+    }
+    printf("\n");
 }
 							
 - (void)applicationWillResignActive:(UIApplication *)application
