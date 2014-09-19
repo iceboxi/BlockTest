@@ -8,12 +8,21 @@
 
 #import "AppDelegate.h"
 
+//NSInteger CounterGlobal = 0; // 定義CounterGlobal  // 放這也可以，差別不清楚...
+//static NSInteger CounterStatic = 0;
+
 @implementation AppDelegate
+
+NSInteger CounterGlobal = 0; // 定義CounterGlobal
+static NSInteger CounterStatic = 0;
+
 
 - (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions
 {
     [self blockTest1];
     [self blockTest2];
+    [self blockTest3];
+    [self blockTest4];
     
     return YES;
 }
@@ -53,7 +62,52 @@
     }
     printf("\n");
 }
-							
+
+- (void)blockTest3
+{
+    // 假如變數要在block中可變更（一般變數傳入block為const）
+    __block int mul = 7;
+    int(^myBlock)(int) = ^(int num)
+    {
+        if (num > mul) {
+            mul = num;
+        }
+        
+        return mul;
+    };
+    
+    DLog("%d", myBlock(9));
+}
+
+- (void)blockTest4
+{
+    NSInteger localCounter = 42;
+    __block char localCharacter;
+    
+    void (^aBlock)(void) = ^(void)
+    {
+        ++CounterGlobal; //可以存取。
+        ++CounterStatic; //可以存取。
+        CounterGlobal = localCounter; //localCounter在block建立時就不可變了。
+        localCharacter = 'a'; //設定外面定義的 localCharacter 變數。
+    };
+    
+    ++localCounter; //不會影響block中的值。
+    localCharacter = 'b';
+    
+    DLog(@"before===========");
+    DLog(@"localCounter = %d", localCounter);
+    DLog("localCharacter = %c", localCharacter);
+    DLog(@"CounterGlobal = %d", CounterGlobal);
+    
+    aBlock(); //執行block的內容。
+    //執行完後，localCharachter 會變成 'a'
+    DLog(@"after===========");
+    DLog(@"localCounter = %d", localCounter);
+    DLog("localCharacter = %c", localCharacter);
+    DLog(@"CounterGlobal = %d", CounterGlobal);
+}
+
 - (void)applicationWillResignActive:(UIApplication *)application
 {
     // Sent when the application is about to move from active to inactive state. This can occur for certain types of temporary interruptions (such as an incoming phone call or SMS message) or when the user quits the application and it begins the transition to the background state.

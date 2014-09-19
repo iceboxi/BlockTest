@@ -7,6 +7,7 @@
 //
 
 #import <UIKit/UIKit.h>
+extern NSInteger CounterGlobal; // 表示該變數會在其他定方被定義
 
 @interface AppDelegate : UIResponder <UIApplicationDelegate>
 
