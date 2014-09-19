@@ -23,6 +23,9 @@ static NSInteger CounterStatic = 0;
     [self blockTest2];
     [self blockTest3];
     [self blockTest4];
+    [self blockTest5];
+    [self blockTest6];
+    [self blockTest7];
     
     return YES;
 }
@@ -106,6 +109,68 @@ static NSInteger CounterStatic = 0;
     DLog(@"localCounter = %d", localCounter);
     DLog("localCharacter = %c", localCharacter);
     DLog(@"CounterGlobal = %d", CounterGlobal);
+}
+
+- (void)blockTest5
+{
+    size_t count = 3;
+    dispatch_queue_t queue = dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0);
+    
+    dispatch_apply(count, queue, ^(size_t i) {
+        printf("%zu\n", i);
+    });
+}
+
+- (void)blockTest6
+{
+    // 所有的資料
+    NSArray *array = [NSArray arrayWithObjects: @"A", @"B", @"C", @"A", @"B", @"Z",@"G", @"are", @"Q", nil];
+    // 只要這個集合內的資料 被作為常數傳入，我認為也可以在block內宣告就好
+    NSSet *filterSet = [NSSet setWithObjects: @"A", @"B", @"Z", @"Q", nil];
+    
+    BOOL (^test)(id obj, NSUInteger idx, BOOL *stop) =
+    ^ (id obj, NSUInteger idx, BOOL *stop) {
+//        // 只要這個集合內的資料
+//        NSSet *filterSet = [NSSet setWithObjects: @"A", @"B", @"Z", @"Q", nil];
+        
+        //只對前5筆資料做檢查
+        if (idx < 5) {
+            if ([filterSet containsObject: obj]) {
+                return YES;
+            }
+        }
+        return NO;
+    };
+    
+    NSIndexSet *indexes = [array indexesOfObjectsPassingTest:test];
+    
+    NSLog(@"indexes: %@", indexes);
+    //結果：indexes: <NSIndexSet: 0x8cc94b0>[number of indexes: 4 (in 2 ranges), indexes: (0-1 3-4)]
+    //前５筆資料中，有４筆符合條件，它們的索引值分別是 0-1, 3-4
+}
+
+- (void)blockTest7
+{
+    //這是錯誤的範例，請勿在程式中使用這些語法!!
+    void (^blockArray[3])(void);  // 3個block的陣列
+    
+    for (int i = 0; i < 3; ++i) {
+        blockArray[i] = ^{ printf("hello, %d\n", i); };
+        //注意: 這個block定義僅在for迴圈有效。
+    }
+    
+    blockArray[1];// 沒東西
+    
+    void (^block)(void);
+    
+    int i = random();
+    if (i > 1000) {
+        block = ^{ printf("got i at: %d\n", i); };
+        // 注意: 這個block定義僅在if中有效。
+    }
+    // ...
+    
+    block;// 沒東西
 }
 
 - (void)applicationWillResignActive:(UIApplication *)application
