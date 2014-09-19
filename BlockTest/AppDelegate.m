@@ -26,6 +26,7 @@ static NSInteger CounterStatic = 0;
     [self blockTest5];
     [self blockTest6];
     [self blockTest7];
+    [self blockTest8];
     
     return YES;
 }
@@ -171,6 +172,23 @@ static NSInteger CounterStatic = 0;
     // ...
     
     block;// 沒東西
+}
+
+typedef NSUInteger (^countdown_type)(void);
+countdown_type createCountdown(NSUInteger number)
+{
+    __block NSUInteger counter = number;
+    
+    return [^NSUInteger{
+        return counter--;
+    } copy];
+}
+
+- (void)blockTest8
+{
+    countdown_type countdown = createCountdown(10);
+    DLog(@"%d", countdown());
+    DLog(@"%d", countdown());
 }
 
 - (void)applicationWillResignActive:(UIApplication *)application
